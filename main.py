@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime
+import sys
 
 from layer import *
 from activation import *
@@ -9,6 +10,12 @@ from data import *
 from optimisers import *
 
 np.random.seed(0)
+
+# Parse command line arguments for hyperparameters
+args = [float(x) for x in sys.argv[1:]]
+lrate = args[0]
+ldecay = args[1]
+lmomentum = args[2]
 
 # Define data
 X, y = spiral_data(100,3)
@@ -20,7 +27,7 @@ dense1 = Layer_Dense(2,64)
 activation1 = Activation_ReLU()
 dense2 = Layer_Dense(64,3)
 loss_activation = Loss_CatCrossEntropy_with_SoftMax()
-optimiser = Optimiser_SGD(learning_rate=1, decay=1e-3)
+optimiser = Optimiser_SGD(learning_rate=lrate, decay=ldecay, momentum=lmomentum)
 
 # Initialise serialisation
 training_data = []
@@ -64,9 +71,13 @@ for epoch in range(20001):
 # Serialise training stats
 training_data_np = np.array(training_data)
 timestr = datetime.now().strftime("%Y%m%d-%H%M%S")
-filename = "./training_stats/" + timestr + ".csv"
-np.savetxt(filename, training_data_np, delimiter=",")
+filename = "./training_stats/" + timestr
+np.savetxt(filename + ".csv", training_data_np, delimiter=",")
 
-plt.plot(training_data_np[:,0], training_data_np[:,1])
-plt.plot(training_data_np[:,0], training_data_np[:,2])
-plt.show()
+plt.plot(training_data_np[:,0], training_data_np[:,1], label="accuracy")
+plt.plot(training_data_np[:,0], training_data_np[:,2], label="loss_value")
+plot_title = f'Training with rate={lrate:.3f}, decay={ldecay:.3f}, momentum={lmomentum:.3f}'
+plt.title(plot_title)
+plt.legend(loc='upper center')
+plt.savefig(filename + ".png")
+#plt.show()
