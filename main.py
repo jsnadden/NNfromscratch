@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 from layer import *
 from activation import *
@@ -60,9 +61,11 @@ for epoch in range(20001):
     optimiser.update_params(dense2)
     optimiser.post_update()
 
-# Serialise training data
+# Serialise training stats
 training_data_np = np.array(training_data)
-np.savetxt("training_data.csv", training_data_np, delimiter=",")
+timestr = datetime.now().strftime("%Y%m%d-%H%M%S")
+filename = "./training_stats/" + timestr + ".csv"
+np.savetxt(filename, training_data_np, delimiter=",")
 
 plt.plot(training_data_np[:,0], training_data_np[:,1])
 plt.plot(training_data_np[:,0], training_data_np[:,2])
